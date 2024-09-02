@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+/src/main/java/jpabook/jpashop/jwt/WebSecurityConfig.java
+/src/main/java/jpabook/jpashop/service/CustomUserDetailService.java
+/src/main/resources/templates/login.html
+/src/main/resources/logback.xml
