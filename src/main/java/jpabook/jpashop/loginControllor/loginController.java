@@ -3,6 +3,7 @@ package jpabook.jpashop.loginControllor;
 import jpabook.jpashop.bizException.BizException;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.MemberService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -81,6 +82,12 @@ public class loginController {
         boolean isUnique = !memberService.validateDuplicateMember(memberId);  // 중복이 없으면 true, 있으면 false
         Map<String, Object> response = new HashMap<>();
         response.put("isUnique", isUnique);
+        return response;
+    }
+
+    @PostMapping("api/verifyToken")
+    public Map<String, Object> verifyToken(@RequestHeader("Authorization") String authHeader) {
+        Map<String, Object> response = memberService.verifyToken(authHeader);
         return response;
     }
 }

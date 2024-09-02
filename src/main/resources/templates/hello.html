@@ -12,5 +12,27 @@
         <button type="submit" class="btn btn-primary">logout</button>
     </div>
 </form>
+<!--<script>
+  window.onload = function() {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.valid) {
+          window.location.href = '/login'; // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
+        }
+      });
+    } else {
+      window.location.href = '/login'; // 토큰이 없으면 로그인 페이지로 리다이렉트
+    }
+  }
+</script>-->
 </body>
 </html>

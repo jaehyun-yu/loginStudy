@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, String> {
@@ -26,4 +27,6 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     Member findByMemberId(@Param("memberId") String memberId);
     @Query("SELECT m FROM Member m WHERE m.memberId = :memberId AND m.password = :password")
     Member findByMemberIdAndPassword(@Param("memberId") String memberId, @Param("password") String password);
+
+    Optional<Member> findByEmail(String email);
 }
