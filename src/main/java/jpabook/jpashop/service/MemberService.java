@@ -10,7 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -90,5 +98,106 @@ public class MemberService {
         response.put("valid", isValid);
 
         return response;
+    }
+
+    public String doSocialLogin(String code , Model model) {
+
+        String accessToken = getKaKaoAccessToken(code);
+
+        String userInfo = getKakaoUserInfo(accessToken);
+
+        return userInfo;
+    }
+
+    private String getKaKaoAccessToken(String code) {
+        String accessToken = "";
+        String refreshToken = "";
+        String reqUrl = "https://kauth.kakao.com/oauth/token";
+
+        try {
+            URL url = new URL(reqUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+            StringBuilder sb = new StringBuilder();
+            sb.append("grant_type=authorization_code");
+            sb.append("&client_id=cfffb1896b0309d7bf30e8155a4f1110"); // REST API 키
+            sb.append("&redirect_uri=http://localhost:8080/kakao-login");
+            sb.append("&code=").append(code);
+            bw.write(sb.toString());
+            bw.flush();
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line = "";
+                StringBuilder result = new StringBuilder();
+                while((line = br.readLine()) != null) {
+                    result.append(line);
+                }
+
+                JsonParser parser = new JsonParser();
+                JsonElement element = parser.parse(result.toString());
+
+                accessToken = element.getAsJsonObject().get("access_token").getAsString();
+                refreshToken = element.getAsJsonObject().get("refresh_token").getAsString();
+
+                br.close();
+                bw.close();
+            } else {
+                throw new BizException("인증실패");
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return accessToken;
+    }
+
+    private String getKakaoUserInfo(String accessToken) {
+        String reqURL =  "https://kapi.kakao.com/v2/user/me";
+        String userName = "";
+
+        try {
+            URL url = new URL(reqURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK ) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line = "";
+                StringBuilder result = new StringBuilder();
+
+                while((line = br.readLine()) != null) {
+                    result.append(line);
+                }
+
+                JsonParser parser = new JsonParser();
+                JsonElement element = parser.parse(result.toString());
+
+                if(element.getAsJsonObject().has("properties")) {
+                    JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
+                    if(properties.has("nickname")) {
+                        userName = properties.get("nickname").getAsString();
+                    }
+                }
+                br.close();
+            } else {
+                throw new BizException("카카오톡 유저정보 가져오기 실패.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return userName;
     }
 }

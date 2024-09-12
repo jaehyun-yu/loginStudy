@@ -4,11 +4,13 @@ import jpabook.jpashop.bizException.BizException;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,4 +92,12 @@ public class loginController {
         Map<String, Object> response = memberService.verifyToken(authHeader);
         return response;
     }
+
+    @GetMapping("kakao-login")
+    public String kakaoLogin(@RequestParam("code") String code , Model model) {
+        //ResponseEntity.created(URI.create("/kakao-login"))
+                //.body(memberService.doSocialLogin(tokenparam, model));
+        return showHelloPage(memberService.doSocialLogin(code, model), model);
+    }
+
 }

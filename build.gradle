@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:1.7.36'
 	// Logback Classic (SLF4J implementation)
 	implementation 'ch.qos.logback:logback-classic:1.2.11'
+	implementation 'com.google.code.gson:gson:2.8.8'
 }
 
 tasks.named('test') {
