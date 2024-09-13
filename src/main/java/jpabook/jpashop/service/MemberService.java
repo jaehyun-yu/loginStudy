@@ -104,7 +104,9 @@ public class MemberService {
 
         String accessToken = getKaKaoAccessToken(code);
 
+        model.addAttribute("accessToken" , accessToken);
         String userInfo = getKakaoUserInfo(accessToken);
+
 
         return userInfo;
     }
@@ -199,5 +201,47 @@ public class MemberService {
         }
 
         return userName;
+    }
+
+    public void doSocialLogout(String accessToken) {
+
+        String reqURL = "https://kapi.kakao.com/v1/user/logout";
+
+        try {
+            URL url = new URL(reqURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+            int responseCode = conn.getResponseCode();
+
+            if(responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+                br.close();
+            } else {
+                reqURL = "https://kapi.kakao.com/v1/user/access_token_info";
+
+                url = new URL(reqURL);
+
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+                responseCode = conn.getResponseCode();
+                if(responseCode == HttpURLConnection.HTTP_OK) {
+                    throw new BizException("토큰은 유효한데 로그아웃 실패");
+                } else {
+                    throw new BizException("토큰 유효성도 날라간 상태");
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

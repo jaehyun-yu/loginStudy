@@ -7,32 +7,41 @@
 </head>
 <body>
 <p th:text="'안녕하세요. ' + ${name}" > 안녕하세요 손님</p>
+<input type="hidden" id="accessToken" th:value="${accessToken}"/>
 <form action="/login"  method="get">
     <div class="form-group">
-        <button type="submit" class="btn btn-primary">logout</button>
+        <button type="submit" class="btn btn-primary" onclick = "tokenLogout()">logout</button>
     </div>
 </form>
-<!--<script>
-  window.onload = function() {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      fetch('/api/verifyToken', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
+<script>
+    async function tokenLogout() {
+        debugger;
+        const url = new URL(window.location.href);
+
+        const params = new URLSearchParams(url.search);
+
+        const accessToken = document.getElementById("accessToken").value;
+
+        if(accessToken) {
+            const logoutResponse = await fetch('/kakao-logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    'code': accessToken
+                })
+            });
+            debugger;
+            if (logoutResponse.ok) {
+                return true;
+            } else {
+                return false;
+            }
         }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (!data.valid) {
-          window.location.href = '/login'; // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
-        }
-      });
-    } else {
-      window.location.href = '/login'; // 토큰이 없으면 로그인 페이지로 리다이렉트
+
+        return true;
     }
-  }
-</script>-->
+</script>
 </body>
 </html>

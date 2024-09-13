@@ -95,9 +95,14 @@ public class loginController {
 
     @GetMapping("kakao-login")
     public String kakaoLogin(@RequestParam("code") String code , Model model) {
-        //ResponseEntity.created(URI.create("/kakao-login"))
-                //.body(memberService.doSocialLogin(tokenparam, model));
+
         return showHelloPage(memberService.doSocialLogin(code, model), model);
+    }
+
+    @PostMapping("kakao-logout")
+    public ResponseEntity<String> kakaoLogout(@RequestParam("code") String accessToken) {
+        memberService.doSocialLogout(accessToken);
+        return ResponseEntity.ok("Logout successful");
     }
 
 }
